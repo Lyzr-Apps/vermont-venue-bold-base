@@ -34,6 +34,8 @@ import {
   X,
   Calendar,
   Sparkles,
+  AlertCircle,
+  CheckCircle,
 } from 'lucide-react'
 import { callAIAgent, type NormalizedAgentResponse } from '@/utils/aiAgent'
 import { cn } from '@/lib/utils'
@@ -105,11 +107,13 @@ function VenueCard({
   index,
   isFavorite,
   onToggleFavorite,
+  requestedGuests,
 }: {
   venue: VenueResult
   index: number
   isFavorite: boolean
   onToggleFavorite: () => void
+  requestedGuests: number
 }) {
   const [expanded, setExpanded] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -128,6 +132,13 @@ function VenueCard({
   // Parse price for display
   const priceValue = venue.price_numeric || 0
   const priceDisplay = venue.price || `$${priceValue.toLocaleString()}`
+
+  // Parse capacity
+  const venueCapacity = typeof venue.capacity === 'number'
+    ? venue.capacity
+    : parseInt(String(venue.capacity || '0').replace(/\D/g, ''))
+
+  const capacityFitsGuests = venueCapacity >= requestedGuests
 
   return (
     <Card className="relative border-sage-200 hover:shadow-lg transition-shadow">
@@ -172,15 +183,30 @@ function VenueCard({
           </Badge>
         </div>
 
-        <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+        <div className="flex items-center gap-4 mt-2 text-sm">
           {venue.capacity && (
-            <div className="flex items-center gap-1">
+            <div
+              className={cn(
+                'flex items-center gap-1 px-3 py-1.5 rounded-full font-semibold',
+                capacityFitsGuests
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : 'bg-amber-100 text-amber-800'
+              )}
+            >
               <Users className="h-4 w-4" />
-              {venue.capacity} guests
+              <span>
+                Capacity: {venueCapacity}
+                {capacityFitsGuests && (
+                  <span className="ml-1 text-xs font-normal">
+                    (fits your {requestedGuests} guests)
+                  </span>
+                )}
+              </span>
+              {capacityFitsGuests && <CheckCircle className="h-3.5 w-3.5 ml-1" />}
             </div>
           )}
           {venue.rating && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 text-gray-600">
               <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
               {venue.rating}
             </div>
@@ -356,6 +382,7 @@ function SearchSection({
   setRegion,
   onSearch,
   loading,
+  validationError,
 }: {
   guestCount: string
   setGuestCount: (value: string) => void
@@ -365,7 +392,11 @@ function SearchSection({
   setRegion: (value: string) => void
   onSearch: () => void
   loading: boolean
+  validationError: string | null
 }) {
+  const guestCountNum = parseInt(guestCount) || 0
+  const isValidGuestCount = guestCountNum >= 50 && guestCountNum <= 500
+
   return (
     <Card className="border-sage-200 shadow-lg bg-gradient-to-br from-white to-sage-50/30">
       <CardHeader>
@@ -378,13 +409,16 @@ function SearchSection({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Guest Count */}
+        {/* Guest Count - REQUIRED */}
         <div className="space-y-2">
-          <Label htmlFor="guests" className="text-sage-900 font-semibold">
+          <Label htmlFor="guests" className="text-sage-900 font-semibold flex items-center gap-2">
             Number of Guests
+            <Badge variant="outline" className="text-xs border-rose-300 text-rose-700 bg-rose-50">
+              Required
+            </Badge>
           </Label>
           <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-gray-500" />
+            <Users className="h-4 w-4 text-sage-600" />
             <Input
               id="guests"
               type="number"
@@ -393,10 +427,26 @@ function SearchSection({
               value={guestCount}
               onChange={(e) => setGuestCount(e.target.value)}
               placeholder="e.g., 150"
-              className="border-sage-200 focus:border-sage-400 focus:ring-sage-400"
+              required
+              className={cn(
+                'border-sage-200 focus:border-sage-400 focus:ring-sage-400',
+                validationError && 'border-red-300 focus:border-red-400 focus:ring-red-400'
+              )}
             />
           </div>
-          <p className="text-xs text-gray-500">50 - 500 guests</p>
+          {validationError ? (
+            <div className="flex items-center gap-1 text-xs text-red-600">
+              <AlertCircle className="h-3 w-3" />
+              {validationError}
+            </div>
+          ) : isValidGuestCount ? (
+            <div className="flex items-center gap-1 text-xs text-emerald-600">
+              <CheckCircle className="h-3 w-3" />
+              Only venues that can accommodate your {guestCountNum} guests will be shown
+            </div>
+          ) : (
+            <p className="text-xs text-gray-500">Enter guest count between 50 - 500</p>
+          )}
         </div>
 
         {/* Budget Range */}
@@ -482,6 +532,7 @@ export default function Home() {
   // Search state
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [validationError, setValidationError] = useState<string | null>(null)
   const [response, setResponse] = useState<SearchResponse | null>(null)
 
   // UI state
@@ -496,14 +547,22 @@ export default function Home() {
 
   // Handle search
   const handleSearch = async () => {
+    // Validate guest count BEFORE searching
+    const guestCountNum = parseInt(guestCount) || 0
+    if (!guestCount || guestCountNum < 50 || guestCountNum > 500) {
+      setValidationError('Guest count is required (50-500 guests)')
+      return
+    }
+
+    setValidationError(null)
     setLoading(true)
     setError(null)
     setResponse(null)
 
     try {
-      // Build search query
+      // Build search query - ALWAYS include guest count
       const regionText = region === 'all' ? 'any region in Vermont' : region
-      const query = `Find Vermont wedding venues for ${guestCount} guests with budget $${budgetRange[0].toLocaleString()}-$${budgetRange[1].toLocaleString()} in ${regionText}. Include name, price, capacity, rating, location, description, amenities, images, contact info (phone, email, website), availability, and reviews. Rank by price (lowest first).`
+      const query = `Find Vermont wedding venues for ${guestCountNum} guests with budget $${budgetRange[0].toLocaleString()}-$${budgetRange[1].toLocaleString()} in ${regionText}. IMPORTANT: Only show venues with capacity for at least ${guestCountNum} guests. Include name, price, capacity, rating, location, description, amenities, images, contact info (phone, email, website), availability, and reviews. Rank by price (lowest first).`
 
       const result = await callAIAgent(query, AGENT_ID)
 
@@ -610,6 +669,7 @@ export default function Home() {
             setRegion={setRegion}
             onSearch={handleSearch}
             loading={loading}
+            validationError={validationError}
           />
         </div>
 
@@ -627,7 +687,7 @@ export default function Home() {
           <div>
             {/* Results Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-              <div>
+              <div className="flex-1">
                 <h2 className="text-2xl font-serif font-bold text-sage-900">
                   {response.result.total_count > 0
                     ? `${filteredVenues.length} Venue${filteredVenues.length !== 1 ? 's' : ''} Found`
@@ -635,6 +695,14 @@ export default function Home() {
                 </h2>
                 {response.result.notes && (
                   <p className="text-sm text-gray-600 mt-1">{response.result.notes}</p>
+                )}
+                {filteredVenues.length > 0 && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <Badge variant="outline" className="border-emerald-300 text-emerald-700 bg-emerald-50 text-xs">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Filtered for {guestCount} guests
+                    </Badge>
+                  </div>
                 )}
               </div>
 
@@ -753,16 +821,43 @@ export default function Home() {
                         index={index}
                         isFavorite={favorites.has(venue.name || '')}
                         onToggleFavorite={() => toggleFavorite(venue.name || '')}
+                        requestedGuests={parseInt(guestCount) || 0}
                       />
                     ))}
                   </div>
                 ) : (
-                  <Card className="border-gray-200">
+                  <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-rose-50">
                     <CardContent className="pt-12 pb-12 text-center">
-                      <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <p className="text-gray-600">
-                        No venues match your current filters. Try adjusting your search criteria.
+                      <div className="bg-amber-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Users className="h-10 w-10 text-amber-600" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-amber-900 mb-2">
+                        No venues found for {guestCount} guests
+                      </h3>
+                      <p className="text-gray-700 max-w-md mx-auto mb-4">
+                        No venues match your capacity requirements in the{' '}
+                        <span className="font-semibold">
+                          ${budgetRange[0].toLocaleString()}-${budgetRange[1].toLocaleString()}
+                        </span>{' '}
+                        price range.
                       </p>
+                      <div className="bg-white border border-amber-200 rounded-lg p-4 max-w-md mx-auto">
+                        <p className="text-sm font-semibold text-gray-800 mb-2">Try adjusting:</p>
+                        <ul className="text-sm text-gray-700 space-y-1 text-left">
+                          <li className="flex items-center gap-2">
+                            <DollarSign className="h-4 w-4 text-sage-600" />
+                            Increase your budget range
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4 text-sage-600" />
+                            Select a different region
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Users className="h-4 w-4 text-sage-600" />
+                            Reduce guest count to see more options
+                          </li>
+                        </ul>
+                      </div>
                     </CardContent>
                   </Card>
                 )}
