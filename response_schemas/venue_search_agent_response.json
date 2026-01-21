@@ -1,0 +1,50 @@
+{
+  "agent_name": "Venue Search Agent",
+  "agent_id": "6970f69cd6d0dcaec11185b7",
+  "agent_purpose": "search",
+  "description": "Search for Vermont wedding venues with detailed information including pricing, capacity, amenities, photos, reviews, and contact information. Results are ranked by price (lowest to highest).",
+  "response_schema": {
+    "status": "string",
+    "result": {
+      "venues": [
+        "any"
+      ],
+      "total_count": "number",
+      "search_query": "string",
+      "notes": "string"
+    },
+    "metadata": {
+      "agent_name": "string",
+      "timestamp": "string"
+    }
+  },
+  "example_response": {
+    "status": "error",
+    "result": {
+      "venues": [],
+      "total_count": 0,
+      "search_query": "sample response",
+      "notes": "No sample data available."
+    },
+    "metadata": {
+      "agent_name": "Venue Search Agent",
+      "timestamp": "2023-10-04T12:00:00Z"
+    }
+  },
+  "is_actual_tested": true,
+  "test_timestamp": "2026-01-21T15:55:10.891852",
+  "test_message_used": "Hello, provide a sample response",
+  "actual_test_response": {
+    "status": "error",
+    "result": {
+      "venues": [],
+      "total_count": 0,
+      "search_query": "sample response",
+      "notes": "No sample data available."
+    },
+    "metadata": {
+      "agent_name": "Venue Search Agent",
+      "timestamp": "2023-10-04T12:00:00Z"
+    }
+  }
+}

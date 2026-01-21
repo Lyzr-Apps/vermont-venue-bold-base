@@ -1,0 +1,81 @@
+{
+  "agent_name": "Venue Search Agent",
+  "agent_id": "6970f69cd6d0dcaec11185b7",
+  "test_message": "Find Vermont wedding venues for 150 guests with a budget of $15,000-$25,000 in the Stowe area",
+  "expected_purpose": "search",
+  "timestamp": "2026-01-21T15:54:50.861406",
+  "is_valid_json": true,
+  "validation_errors": [],
+  "actual_response": {
+    "status": "success",
+    "result": {
+      "venues": [
+        {
+          "name": "Stowe Mountain Lodge",
+          "price": "$15,000-$25,000",
+          "price_numeric": 15000,
+          "capacity": 200,
+          "amenities": [
+            "Catering",
+            "Bar",
+            "Parking",
+            "Accommodations",
+            "Outdoor Space"
+          ],
+          "photos": [
+            "https://example.com/stowe_mountain_lodge1.jpg",
+            "https://example.com/stowe_mountain_lodge2.jpg"
+          ],
+          "reviews": {
+            "summary": "Stowe Mountain Lodge is praised for its beautiful setting and excellent service.",
+            "rating": 4.7,
+            "review_count": 150
+          },
+          "contact": {
+            "phone": "802-253-3598",
+            "email": "info@stowemountainlodge.com",
+            "website": "https://www.stowemountainlodge.com",
+            "address": "5781 Mountain Rd, Stowe, VT 05672"
+          },
+          "location": "Stowe, VT"
+        },
+        {
+          "name": "The Barn at Smugglers' Notch",
+          "price": "$10,000-$20,000",
+          "price_numeric": 10000,
+          "capacity": 150,
+          "amenities": [
+            "Catering",
+            "Bar",
+            "Parking",
+            "Outdoor Space"
+          ],
+          "photos": [
+            "https://example.com/barn_smugglers1.jpg",
+            "https://example.com/barn_smugglers2.jpg"
+          ],
+          "reviews": {
+            "summary": "Many couples love the rustic charm of The Barn and the stunning views.",
+            "rating": 4.6,
+            "review_count": 100
+          },
+          "contact": {
+            "phone": "802-644-3111",
+            "email": "info@smuggs.com",
+            "website": "https://www.smuggs.com",
+            "address": "4323 Vermont Route 108 South, Jeffersonville, VT 05464"
+          },
+          "location": "Jeffersonville, VT"
+        }
+      ],
+      "total_count": 2,
+      "search_query": "Vermont wedding venues for 150 guests within $15,000-$25,000 in Stowe area",
+      "notes": "All venues identified fit the guest count and budget range in the Stowe area."
+    },
+    "metadata": {
+      "agent_name": "Venue Search Agent",
+      "timestamp": "2023-10-08T12:00:00Z"
+    }
+  },
+  "raw_response": "{\n  \"status\": \"success\",\n  \"result\": {\n    \"venues\": [\n      {\n        \"name\": \"Stowe Mountain Lodge\",\n        \"price\": \"$15,000-$25,000\",\n        \"price_numeric\": 15000,\n        \"capacity\": 200,\n        \"amenities\": [\"Catering\", \"Bar\", \"Parking\", \"Accommodations\", \"Outdoor Space\"],\n        \"photos\": [\"https://example.com/stowe_mountain_lodge1.jpg\", \"https://example.com/stowe_mountain_lodge2.jpg\"],\n        \"reviews\": {\n          \"summary\": \"Stowe Mountain Lodge is praised for its beautiful setting and excellent service.\",\n          \"rating\": 4.7,\n          \"review_count\": 150\n        },\n        \"contact\": {\n          \"phone\": \"802-253-3598\",\n          \"email\": \"info@stowemountainlodge.com\",\n          \"website\": \"https://www.stowemountainlodge.com\",\n          \"address\": \"5781 Mountain Rd, Stowe, VT 05672\"\n        },\n        \"location\": \"Stowe, VT\"\n      },\n      {\n        \"name\": \"The Barn at Smugglers' Notch\",\n        \"price\": \"$10,000-$20,000\",\n        \"price_numeric\": 10000,\n        \"capacity\": 150,\n        \"amenities\": [\"Catering\", \"Bar\", \"Parking\", \"Outdoor Space\"],\n        \"photos\": [\"https://example.com/barn_smugglers1.jpg\", \"https://example.com/barn_smugglers2.jpg\"],\n        \"reviews\": {\n          \"summary\": \"Many couples love the rustic charm of The Barn and the stunning views.\",\n          \"rating\": 4.6,\n          \"review_count\": 100\n        },\n        \"contact\": {\n          \"phone\": \"802-644-3111\",\n          \"email\": \"info@smuggs.com\",\n          \"website\": \"https://www.smuggs.com\",\n          \"address\": \"4323 Vermont Route 108 South, Jeffersonville, VT 05464\"\n        },\n        \"location\": \"Jeffersonville, VT\"\n      }\n    ],\n    \"total_count\": 2,\n    \"search_query\": \"Vermont wedding venues for 150 guests within $15,000-$25,000 in Stowe area\",\n    \"notes\": \"All venues identified fit the guest count and budget range in the Stowe area.\"\n  },\n  \"metadata\": {\n    \"agent_name\": \"Venue Search Agent\",\n    \"timestamp\": \"2023-10-08T12:00:00Z\"\n  }\n}"
+}

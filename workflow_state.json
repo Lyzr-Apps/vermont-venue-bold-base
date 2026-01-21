@@ -1,0 +1,19 @@
+{
+  "workflow_created": true,
+  "agents": [
+    {
+      "name": "Venue Search Agent",
+      "agent_id": "6970f69cd6d0dcaec11185b7",
+      "type": "Single",
+      "provider": "Perplexity",
+      "model": "sonar-pro",
+      "temperature": 0.3,
+      "top_p": 1,
+      "status": "created",
+      "response_schema_saved": true
+    }
+  ],
+  "total_agents": 1,
+  "workflow_type": "single_agent",
+  "application": "Vermont Wedding Venue Finder"
+}
